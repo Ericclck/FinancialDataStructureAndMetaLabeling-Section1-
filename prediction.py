@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from utils.labeling import *
+import matplotlib.pyplot as plt
 
 # import ticks data
 ticks = pd.read_csv(os.path.join('data','BTCUSDT-trades-2023-06-16.csv'))
@@ -64,7 +65,7 @@ y = df['meta_label']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
 # train random forest model
-rf = RandomForestClassifier(n_estimators=100, max_depth=2, random_state=0,oob_score=True)
+rf = RandomForestClassifier(n_estimators=1000, max_depth=5, random_state=0,oob_score=True)
 rf.fit(X_train[inputs_columns], y_train)
 
 # predict on test set
@@ -87,3 +88,8 @@ y_pred_proba = rf.predict_proba(X_test[inputs_columns])
 return_series = pd.Series(y_pred_proba[:,1]*X_test['return']*X_test['side'])
 
 print(return_series.describe())
+
+# plot return series
+plt.title('Return series of meta label model')
+return_series.cumsum().plot()
+plt.show()
