@@ -14,3 +14,5 @@ Labeling and Meta-labeling
 
 Label whether a sample reaches profit-taking, stop-loss levels or expiry using Triple Barrier method.
 Using primary model to pick a side for each sample and Using meta-labeling to find the bet size.
+
+![Alt text for image](/plots/events/acf.png)
