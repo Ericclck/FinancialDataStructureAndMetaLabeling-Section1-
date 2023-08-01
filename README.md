@@ -21,8 +21,6 @@ Cumulative Sum Filter created statistically significant correlations between Bin
 ### Normality Improvement ###
 ![Alt text for image](/plots/events/log_price_normal.png)
 ![Alt text for image](/plots/events/price_cusum_normal.png)
-![Alt text for image](/plots/events/balance_cusum_normal.png)
-![Alt text for image](/plots/events/flow_cusum_normal.png)
 After applying the Cumulative Sum Filter, the normality of the sample improved. The following plots demonstrate the improvement:
 
 ## Chapter 3: Labeling and Meta-Labeling ##
