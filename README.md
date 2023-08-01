@@ -30,4 +30,8 @@ The implementation includes labeling whether a sample reaches profit-taking, sto
 
 The example above shows a return series based on prediction on test data, containing overlapping samples due to the Triple Barriers method.
 
-The primary model is a simple cross moving average model with a 100-ticks vs 1000-ticks window, while the secondary model is a Random Forest model with 1000 trees and a maximum depth of 5. The performance of these models is surprising, considering that they can generate profit even when commissions are taken into account.
+### Summary ###
+The primary model is a simple cross moving average model with a 100-ticks vs 1000-ticks window, <br>
+while the secondary model is a Random Forest model with 1000 trees and a maximum depth of 5. <br>
+The performance of these models is surprising, <br>
+considering that they can generate profit even when commissions are taken into account.
