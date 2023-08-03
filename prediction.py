@@ -8,7 +8,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from utils.labeling import *
-from utils.model import *
 import matplotlib.pyplot as plt
 
 # import ticks data
@@ -63,25 +62,34 @@ df = df.merge(stds,left_index=True,right_index=True)
 inputs_columns = ['log_price','log_volume','log_high','log_low','log_open','volatility','side']
 X = df[inputs_columns+['return','label']]
 y = df['meta_label']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
-# split at rb.index[int(len(rb.index)*0.8)]
-X_train = X[X.index < rb.index[int(len(rb.index)*0.8)]]
-X_test = X[X.index >= rb.index[int(len(rb.index)*0.8)]]
-y_train = y[y.index < rb.index[int(len(rb.index)*0.8)]]
-y_test = y[y.index >= rb.index[int(len(rb.index)*0.8)]]
+# train random forest model
+rf = RandomForestClassifier(n_estimators=1000, max_depth=5, random_state=0,oob_score=True)
+rf.fit(X_train[inputs_columns], y_train)
 
+# predict on test set
+y_pred = rf.predict(X_test[inputs_columns])
 
-visualize_model(X_train, y_train, X_test, y_test, inputs_columns,model=RandomForestClassifier(n_estimators=1000, max_depth=10, random_state=0))
+# # accuracy score
+print(accuracy_score(y_test, y_pred))
 
-# get sample weights
-sample_weights = pd.read_csv(os.path.join('data/processed','final_weights.csv'),index_col=0).squeeze()
+# confusion matrix
+print("Confusion matrix of primary model : \n" , confusion_matrix(y_test, X_test['side'].replace(-1,0)))
+print("Confusion matrix of secondary model : \n" , confusion_matrix(y_test, y_pred))
 
-print(f"Sample mean : {sample_weights.mean()}")
+# classification report
+print(classification_report(y_test, y_pred))
 
-# truncate sample weights with indices of X_train
-sample_weights = sample_weights[X_train.index]
+# feature importance
+print(rf.feature_importances_)
 
-y_pred = bagging(X_train, y_train, X_test, y_test, inputs_columns,None, sample_weights)
-return_series = y_pred * X_test['side'] * X_test['return']
+y_pred_proba = rf.predict_proba(X_test[inputs_columns])
+return_series = pd.Series(y_pred_proba[:,1]*X_test['return']*X_test['side'])
 
 print(return_series.describe())
+
+# plot return series
+plt.title('Return series of meta label model')
+return_series.cumsum().plot()
+plt.show()
