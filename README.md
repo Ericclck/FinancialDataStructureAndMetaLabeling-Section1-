@@ -49,16 +49,19 @@ After increasing max_depth of the secondary model to 10, the return series looks
 
 Unfortunately, if commissions of 0.1% are taken into account, this strategy is not profitable. <br>
 
-### Sample weighting ###
+### Sample Weighting and Bagging ###
 
 The sample weights are calculated as follows: <br>
-sum of returns / concurrency in terms of tick over the period from the start of sample to profit-taking/stop-loss/expiry<br>
+sum of returns, <br>
+divided by concurrency in terms of tick over the period from the start of sample to profit-taking/stop-loss/expiry. <br>
 multiply by the cumulative uniqueness decay factor<br>
 
 
 Weighted bootstrapping is then performed with this sample weights. <br>
-Originally, sequential bootstrapping is used, but it soon becomes apparent that my laptop cannot handle the memory consumption. <br>
-Bagging is performed with 6 models, each with 1000 trees and a maximum depth of 10. (same as previous model), <br>
+Originally, sequential bootstrapping is used,<br>
+but it soon becomes apparent that my laptop cannot handle the memory consumption. <br>
+Bagging is performed with 6 models,<br>
+each with 1000 trees and a maximum depth of 10. (same as previous model), <br>
 since average weighting is around .17.<br>
 
 
