@@ -2,7 +2,7 @@
 
 This repository includes the implementation of Chapters 2 and 3 from the book "Advances in Financial Machine Learning".
 
-## Chapter 2: Financial Data Structures ##
+## Financial Data Structures ##
 The implementation includes regular bars, imbalance bars, run bars, and the cumulative sum filter. The analysis includes tests of normality, stationarity, and serial correlation.
 
 Normality tests are based on the Kolmogorov-Smirnov (KS) and Jarque-Bera tests, as the Shapiro-Wilk test is not accurate for large samples.
@@ -23,7 +23,7 @@ Cumulative Sum Filter created statistically significant correlations between Bin
 ![Alt text for image](/plots/events/price_cusum_normal.png)
 After applying the Cumulative Sum Filter, the normality of the sample improved. The following plots demonstrate the improvement:
 
-## Chapter 3: Labeling and Meta-Labeling ##
+## Labeling and Meta-Labeling ##
 The implementation includes labeling whether a sample reaches profit-taking, stop-loss levels, or expiry using the Triple Barrier method. It uses the primary model to pick a side for each sample and meta-labeling to determine the bet size.
 
 ![Alt text for image](plots/labeling/scores.png)<br>
