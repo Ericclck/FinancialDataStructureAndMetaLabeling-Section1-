@@ -28,8 +28,8 @@ trend_following = trend_following.squeeze()
 
 # Compute events
 targets = pd.Series(std_pct_change(ticks['price'].values, 100),index=ticks.index[100:])
-vertical_barriers = get_vertical_barriers(ticks.index, rb.index, num_transactions=100)
-events = get_events(ticks['price'],rb.index,scalers_for_horizontal_barriers=(1,1),target=targets,min_return=0.000001, num_threads=1, vertical_barriers=vertical_barriers,side=trend_following)
+vertical_barriers = get_vertical_barriers(ticks.index, rb.index, num_transactions=1000)
+events = get_events(ticks['price'],rb.index,scalers_for_horizontal_barriers=(2,2),target=targets,min_return=0.0000001, num_threads=1, vertical_barriers=vertical_barriers,side=trend_following)
 meta_labels = get_labels(events, ticks['price'])
 
 # store meta labels
