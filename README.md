@@ -32,7 +32,7 @@ I computed sample weights based on the sum of returns, concurrency (in terms of 
 
 ![Return Series with Bagging](plots/labeling/return_bagging.png)
 
-Initially, I performed weighted bootstrapping with these sample weights. However, due to high memory consumption, I switched to bagging. Despite showing a slight increase in mean return with bagging, the return series is not sufficient to cover commissions.
+Initially, I performed weighted bootstrapping with these sample weights. However, due to high memory consumption, bagging is performed instead. Despite showing a slight increase in mean return with bagging, the return series is not sufficient to cover commissions.
 
 ## Data Consolidation and Model Calibration
 
@@ -41,7 +41,7 @@ To reduce the number of trades (and consequently, commissions), I consolidated 5
 ![Return Series](plots/labeling/return_100_run.png)
 ![Return mean](plots/labeling/return_100_run_mean.png)
 
-For a longer interval, my results suggest that the current strategy may not be safe or that the model may not be adequately trained due to lack of data.
+For a longer interval, my results suggest that the current strategy may be too risky or that the model may not be adequately trained due to lack of data.
 
 ![Return Series](plots/labeling/return_1000_run.png)
 ![Return mean](plots/labeling/return_1000_run_mean.png)
