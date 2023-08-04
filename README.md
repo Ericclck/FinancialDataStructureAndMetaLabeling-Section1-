@@ -1,4 +1,4 @@
-# Quantitative Finance Library
+# Quantitative Finance
 
 This repository contains a comprehensive implementation of various quantitative finance methodologies including Information-driven Bars, Cumulative Sum Filter, Triple Barriers Method, Meta-labeling, Sample Weighting and Sequential Weighted Bagging.
 
@@ -58,6 +58,10 @@ Weighted bootstrapping is then performed with these sample weights. Initially, s
 ![Return Series with Bagging](plots/labeling/return_bagging.png)
 
 With bagging, the return series shows a slight increase in the mean return, although not sufficient to cover commissions.
+
+This model roughly traded 100k times in a day, which loses a significant amount of money due to commissions.
+This is due to the fact that sampling parameters creates 100k samples in that day vs 900k ticks.
+This also created a abnormal optimal differencing parameter that is close to one, which is not ideal.
 
 ### Summary
 
