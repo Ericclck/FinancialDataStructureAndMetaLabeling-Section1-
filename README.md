@@ -41,7 +41,7 @@ To reduce the number of trades (and consequently, commissions), I consolidated 5
 ![Return Series](plots/labeling/return_100_run.png)
 ![Return mean](plots/labeling/return_100_run_mean.png)
 
-For a longer interval, though the mean return improved to 3e-4, my results suggest that the current strategy may be too risky or that the model may not be adequately trained due to lack of data.
+For a longer interval, though the mean return improved to 3e-4(shown below), my results suggest that the current strategy may be too risky or that the model may not be adequately trained due to lack of data.
 
 ![Return Series](plots/labeling/return_1000_run.png)
 ![Return mean](plots/labeling/return_1000_run_mean.png)
