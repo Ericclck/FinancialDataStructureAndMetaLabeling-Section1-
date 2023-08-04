@@ -29,6 +29,8 @@ def get_concurrency(price_indices: pd.Series, first_touch : pd.Series, molecule 
     # truncate first_touch
     if molecule is None:
         molecule = first_touch.index
+    if not first_touch.index.is_monotonic_increasing:
+        raise ValueError('first_touch.index must be monotonic increasing')
     first_touch = first_touch.loc[molecule[0] : first_touch[molecule].max()]
     # truncate price indices to first_touch.index[0] to first_touch.max()
     loc = price_indices.searchsorted(np.array([first_touch.index[0],first_touch.max()]))

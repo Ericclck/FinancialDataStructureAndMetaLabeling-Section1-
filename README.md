@@ -1,70 +1,38 @@
-# Quantitative Finance
+# Advanced Quantitative Finance Methods Implementation
 
-This repository contains a comprehensive implementation of various quantitative finance methodologies including Information-driven Bars, Cumulative Sum Filter, Triple Barriers Method, Meta-labeling, Sample Weighting and Sequential Weighted Bagging.
+This repository presents a comprehensive assortment of implementations for key methodologies in quantitative finance. Our focus spans across several techniques, including Information-driven Bars, Cumulative Sum Filter, Triple Barriers Method, Meta-labeling, Sample Weighting, and Sequential Weighted Bagging. The objective is to provide a detailed approach to understanding and implementing these methods while analyzing their performance and relevance.
 
-## Financial Data Structures
+Two set of data is used, Binance cash flow and bitcoin Balance count is used for Cumulative Sum Filter,
+and bitcoin tick data is used for other methods.
 
-The library features a range of data structures customary to financial analysis. These include regular bars, imbalance bars, run bars, and the Cumulative Sum Filter. The analysis procedures comprise tests of normality, stationarity, and serial correlation.
+## Financial Data Structures & Statistical Analysis
 
-- Normality tests utilize Kolmogorov-Smirnov (KS) and Jarque-Bera tests, as Shapiro-Wilk test is deemed less accurate for extensive datasets.
-- Stationarity tests employ the Augmented Dickey-Fuller (ADF) test.
-- Autocorrelation Function (ACF) Plots are used to represent the log returns.
+Our library offers a diverse set of data structures that are essential in financial analysis. This collection incorporates regular bars, imbalance bars, run bars, and the Cumulative Sum Filter. Additionally, we feature numerous analytical procedures such as tests of normality, stationarity, and serial correlation.
 
-**ACF Plot for Log Returns (Tick Frequency):**
-![ACF Plot for Log Returns (Tick Frequency)](/plots/acf.png)
+Our approach to normality testing involves the use of Kolmogorov-Smirnov (KS) and Jarque-Bera tests, as we find the Shapiro-Wilk test less accurate for larger datasets. For stationarity testing, we employ the Augmented Dickey-Fuller (ADF) test. Autocorrelation Function (ACF) Plots serve to represent the log returns.
 
-**ACF Plot for Log Returns (Daily Frequency):**
-![ACF Plot for Log Returns (Daily Frequency)](/plots/events/acf.png)
+Notably, we observed significant correlations between Binance cash net flow data, balances count, and Bitcoin log return after applying the Cumulative Sum Filter. Furthermore, the application of this filter resulted in an enhanced sample normality.
 
-Significant correlations were observed between Binance cash net flow data, balances count, and Bitcoin log return after the application of Cumulative Sum Filter.
+## Labeling Techniques & Meta-Labeling
 
-### Normality Improvement
-After applying the Cumulative Sum Filter, an improvement in sample normality was observed. The following plots illustrate this enhancement:
+Our methodology includes a systematic procedure for labeling whether a sample reaches profit-taking, stop-loss levels, or expiry using the Triple Barrier method. Furthermore, we utilize the primary model to select a side for each sample, and meta-labeling is implemented to determine the bet size.
 
-![Normality Improvement](/plots/events/log_price_normal.png)
-![Normality Improvement](/plots/events/price_cusum_normal.png)
+Our results show an increase in F1 scores for the secondary model, as expected. However, it's crucial to note that any return series illustrated might contain overlapping samples due to the Triple Barriers method.
 
-## Labeling and Meta-Labeling
+## Sample Weighting & Bagging
 
-The implementation includes a procedure for labeling whether a sample reaches profit-taking, stop-loss levels, or expiry using the Triple Barrier method. The primary model is used to select a side for each sample, and meta-labeling is employed to determine the bet size.
+We compute sample weights using a method that considers the sum of returns, concurrency in terms of tick over the period from the start of the sample to profit-taking/stop-loss/expiry, and multiplies by the cumulative uniqueness decay factor.
 
-![Model Scores](plots/labeling/scores.png)
+Subsequently, bagging is conducted with six models, each featuring 1,000 trees and a maximum depth of 10, considering the average weighting is around 0.17.
 
-The image above depicts the Precision, Recall, and F1 scores for both primary and secondary models. As anticipated, the F1 scores increase for the secondary model.
+Despite showing a slight increase in mean return with bagging, the return series is not sufficient to cover commissions. The model's high trading volume in a day (overlapping trading windows) leads to significant losses due to commissions.
 
-![Return Series](plots/labeling/return_series.png)
+## Data Consolidation & Challenges
 
-The return series based on prediction on test data may contain overlapping samples due to the Triple Barriers method. However, the concurrency of the sampling is found to be low, and after adjusting the concurrency and test data boundaries to match sample weight boundaries, the return series now looks like this:
+To reduce the number of trades and consequently the commissions, we have consolidated 5 days of tick data into one sample. This approach, however, created challenges with the Triple Barriers method, specifically with the horizontal and vertical barriers. After addressing these issues, the mean return improved but remained insufficient to cover commissions.
 
-![Adjusted Return Series](plots/labeling/return_series_concurrency_fixed_boundary_adjusted.png)
+In the case of a longer interval, our results suggest that the current strategy may not be safe or that the model may not be adequately trained due to data scarcity.
 
-Please note that any return series displayed above is not the actual return series as each sample might overlap with each other.
+## Conclusion
 
-After increasing the max_depth of the secondary model to 10, the return series looks like this:
-
-![Enhanced Return Series](plots/labeling/return.png)
-
-Please note, this strategy would not be profitable if a commission of 0.1% is considered.
-
-### Sample Weighting and Bagging
-
-Sample weights are computed using the following formula:
-- Sum of returns,
-- Divided by concurrency in terms of tick over the period from the start of sample to profit-taking/stop-loss/expiry,
-- Multiplied by the cumulative uniqueness decay factor.
-
-Weighted bootstrapping is then performed with these sample weights. Initially, sequential bootstrapping was used, but due to high memory consumption, the process was switched to bagging. Bagging is conducted with six models, each with 1,000 trees and a maximum depth of 10, as the average weighting is around 0.17.
-
-![Return Series with Bagging](plots/labeling/return_bagging.png)
-
-With bagging, the return series shows a slight increase in the mean return, although not sufficient to cover commissions.
-
-This model roughly traded 100k times in a day, which loses a significant amount of money due to commissions.
-This is due to the fact that sampling parameters creates 100k samples in that day vs 900k ticks.
-This also created a abnormal optimal differencing parameter that is close to one, which is not ideal.
-
-### Summary
-
-The primary model is a simple cross moving average model with a 100-ticks vs 1000-ticks window, while the secondary model is a Random Forest model with 1,000 trees and a maximum depth of 10.
-
-While no considerations were made for commissions, given the simplicity of both models, it is notable that they can generate any profit at all.
+Our primary model utilizes a straightforward cross moving average model with specific tick windows, while the secondary model employs a Random Forest model with a maximum depth and number of trees. It's noteworthy that, despite the simplicity of these models and the absence of commission considerations, they can still manage to generate profits. However, the results emphasize the importance of proper data handling, model selection, and hyperparameter tuning in quantitative finance.

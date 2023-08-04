@@ -12,7 +12,7 @@ from utils.model import *
 import matplotlib.pyplot as plt
 
 # import ticks data
-ticks = pd.read_csv(os.path.join('data','BTCUSDT-trades-2023-06-16.csv'))
+ticks = pd.read_csv(os.path.join('data','ticks.csv'))
 ticks.columns = ['id','price','volume','dollar','time','buyer_maker','_ignore']
 ticks = ticks.set_index('id')
 
@@ -22,7 +22,7 @@ stds = std_pct_change(ticks['price'].values, ewma_window)
 stds = pd.Series(stds,index=ticks.index[ewma_window:],name='volatility')
 
 # import run bars data
-rb = pd.read_csv(os.path.join('data/processed','BTCUSDT-trades-2023-06-16-run-dollars.csv'))
+rb = pd.read_csv(os.path.join('data/processed','ticks-run-dollars.csv'))
 rb.set_index('id',inplace=True)
 
 # compute log return series for each columns (open,high,low,close,volume), remove inf values and nan values
@@ -35,9 +35,18 @@ rb['log_open'] = np.log(rb['open']).diff()
 
 # fractional differentiation ([0.9453125 0.        0.9453125 0.9453125 0.9453125])
 from fracdiff.sklearn import FracdiffStat,Fracdiff
-f =  Fracdiff(0.95)
-X = f.fit_transform(rb[['close', 'high', 'low', 'open']])
+# f = FracdiffStat()
+# X = f.fit_transform(rb[['close', 'high', 'low', 'open','volume']])
 # print(f.d_)
+f =  Fracdiff(0.8)
+X = f.fit_transform(rb[['close', 'high', 'low', 'open']])
+# ADF
+from statsmodels.tsa.stattools import adfuller
+print("ADF p-values")
+for i in range(X.shape[1]):
+    print(f"pavlue : {adfuller(X[:,i])[1]}")
+
+
 
 # add fractional diff series to rb
 rb['fracdiff_close'] = X[:,0]

@@ -108,8 +108,9 @@ def get_events(close : pd.DataFrame, sampling_indices : pd.Series , scalers_for_
         first_touch_index column represents the timestamp of when the first touch barrier is reached
         target column represents the target returns
     """
-    # get target
-    target = target.loc[sampling_indices]
+    # if target is in ticks index
+    if len(target) >= len(sampling_indices):
+        target = target.loc[sampling_indices]
     target = target[target > min_return]
     # get vertical barriers
     if vertical_barriers is None:
@@ -124,6 +125,7 @@ def get_events(close : pd.DataFrame, sampling_indices : pd.Series , scalers_for_
     events = pd.concat({'side': betting_side,
                         'vertical_barrier': vertical_barriers,
                         'target': target}, axis=1).dropna(subset=['target'])
+
     # Get events when first touch barrier is reached
     # if num_threads == 1:
     first_touch_events = find_stop_loss_and_profit_taking(close, events, scalers_for_horizontal_barriers, events.index)
@@ -175,7 +177,7 @@ def get_labels(events : pd.DataFrame, close : pd.Series) -> pd.DataFrame:
         out.loc[events_['vertical_barrier'] == events_['first_touch_index'], 'label'] = 0
     return out
 
-def get_vertical_barriers(ticks_indices : pd.Series,rb_indices : pd.Series,num_transactions : int = 100) -> pd.Series:
+def get_vertical_barriers(ticks_indices : pd.Series,rb_indices : pd.Series,num_ticks : int = 100) -> pd.Series:
     """
     Get vertical barriers
 
@@ -185,8 +187,8 @@ def get_vertical_barriers(ticks_indices : pd.Series,rb_indices : pd.Series,num_t
         Indices of ticks (id)
     rb_indices : pd.Series
         Indices of dollar bars (id)
-    num_transactions : int
-        Number of transactions
+    num_ticks : int
+        Number of bars
     
     Returns
     -------
@@ -195,8 +197,8 @@ def get_vertical_barriers(ticks_indices : pd.Series,rb_indices : pd.Series,num_t
     """
     vertical_barriers = np.zeros(len(rb_indices),dtype=int)
     for i in range(len(rb_indices)):
-        if rb_indices[i] + num_transactions < ticks_indices[len(ticks_indices)-1]:
-            vertical_barriers[i] = rb_indices[i]+num_transactions
+        if rb_indices[i] + num_ticks < ticks_indices[len(ticks_indices)-1]:
+            vertical_barriers[i] = rb_indices[i]+num_ticks
         else:
             vertical_barriers[i] = ticks_indices[len(ticks_indices)-1]
     vertical_barriers = pd.Series(vertical_barriers,index=rb_indices)

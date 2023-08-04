@@ -11,11 +11,19 @@ from utils.labeling import *
 from utils.model import *
 import matplotlib.pyplot as plt
 
+# import prices 
+prices = pd.read_csv(os.path.join('data','ticks.csv'))
+prices.columns = ['id','price','volume','dollar','time','buyer_maker','_ignore']
+prices = prices.set_index('id')
+
 # import rb
-rb = pd.read_csv(os.path.join('data/processed','BTCUSDT-trades-2023-06-16-run-dollars.csv'))
+rb = pd.read_csv(os.path.join('data/processed','ticks-run-dollars.csv'))
 rb.set_index('id',inplace=True)
 
 df = pd.read_csv(os.path.join('data/processed','df.csv'),index_col=0)
+
+# ffill nans then bfill nans
+df = df.fillna(method='ffill').fillna(method='bfill')
 
 # df columns : return,label,meta_label , index = id
 # split data, 80% train, 20% test, maintain order
@@ -24,14 +32,17 @@ fractional_diff_columns = ['fracdiff_close','fracdiff_high','fracdiff_low','frac
 X = df[inputs_columns+['return','label']+fractional_diff_columns]
 y = df['meta_label']
 
-# split at rb.index[int(len(rb.index)*0.8)]
-X_train = X[X.index < rb.index[int(len(rb.index)*0.8)]]
-X_test = X[X.index >= rb.index[int(len(rb.index)*0.8)]]
-y_train = y[y.index < rb.index[int(len(rb.index)*0.8)]]
-y_test = y[y.index >= rb.index[int(len(rb.index)*0.8)]]
+# split at 0.8
+X_train = X[X.index < prices.index[int(0.8*len(prices.index))]]
+X_test = X[X.index >= prices.index[int(0.8*len(prices.index))]]
+y_train = y[y.index < prices.index[int(0.8*len(prices.index))]]
+y_test = y[y.index >= prices.index[int(0.8*len(prices.index))]]
 
 
-visualize_model(X_train, y_train, X_test, y_test, inputs_columns,model=RandomForestClassifier(n_estimators=1000, max_depth=10, random_state=0))
+
+n_estimators = 1000
+max_depth = 10
+visualize_model(X_train, y_train, X_test, y_test, inputs_columns,model=RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=0))
 
 # get sample weights
 sample_weights = pd.read_csv(os.path.join('data/processed','final_weights.csv'),index_col=0).squeeze()
@@ -41,15 +52,14 @@ print(f"Sample mean : {sample_weights.mean()}")
 # truncate sample weights with indices of X_train
 sample_weights = sample_weights[X_train.index]
 
-y_pred = bagging(X_train, y_train, X_test, y_test, inputs_columns,None, sample_weights)
+print(f"Sample mean in Train : {sample_weights.mean()}")
+
+y_pred = bagging(X_train, y_train, X_test, y_test, inputs_columns,None, sample_weights,parameters={'n_estimators':n_estimators,'max_depth':max_depth})
 return_series = y_pred * X_test['side'] * X_test['return']
 
 print(return_series.describe())
 
-y_pred = bagging(X_train, y_train, X_test, y_test, fractional_diff_columns+['volatility','side'],None, sample_weights)
+y_pred = bagging(X_train, y_train, X_test, y_test, fractional_diff_columns+['volatility','side'],None, sample_weights,parameters={'n_estimators':n_estimators,'max_depth':max_depth})
 return_series = y_pred * X_test['side'] * X_test['return']
 print(return_series.describe())
 
-y_pred = bagging(X_train, y_train, X_test, y_test, fractional_diff_columns+inputs_columns,None, sample_weights)
-return_series = y_pred * X_test['side'] * X_test['return']
-print(return_series.describe())

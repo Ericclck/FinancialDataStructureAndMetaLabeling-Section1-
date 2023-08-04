@@ -47,7 +47,7 @@ def weighted_sampling(sampling_indices:np.ndarray,distribution:np.ndarray,num_sa
     return bag
 
 import math 
-def bagging(X_train : pd.DataFrame, y_train : pd.DataFrame, X_test: pd.DataFrame, y_test: pd.DataFrame,inputs_columns : list[str],num_models:int,distribution:pd.Series) -> np.ndarray:
+def bagging(X_train : pd.DataFrame, y_train : pd.DataFrame, X_test: pd.DataFrame, y_test: pd.DataFrame,inputs_columns : list[str],num_models:int,distribution:pd.Series,parameters:dict) -> np.ndarray:
     if num_models == None:
         num_models = math.ceil(1 / distribution.mean())
         print(f'Number of models is set to {num_models}')
@@ -61,7 +61,7 @@ def bagging(X_train : pd.DataFrame, y_train : pd.DataFrame, X_test: pd.DataFrame
         X_train_sample = X_train.loc[selected_indices]
         y_train_sample = y_train.loc[selected_indices]
 
-        model_list.append(RandomForestClassifier(n_estimators=1000, max_depth=10, random_state=0))
+        model_list.append(RandomForestClassifier(n_estimators=parameters['n_estimators'], max_depth=parameters['max_depth'], random_state=0))
 
         # train model
         model_list[i].fit(X_train_sample[inputs_columns], y_train_sample)

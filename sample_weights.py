@@ -3,20 +3,21 @@ import numpy as np
 from utils.sample_weights import *
 import os
 
-# import data 'data/BTCUSDT-trades-2023-06-16.csv'
-prices = pd.read_csv(os.path.join('data','BTCUSDT-trades-2023-06-16.csv'))
+# import data 'data/ticks.csv'
+prices = pd.read_csv(os.path.join('data','ticks.csv'))
 prices.columns = ['id','price','volume','dollar','time','buyer_maker','_ignore']
 prices = prices.set_index('id')
 
 # import first touch 'data/processed/events.csv'
-events = pd.read_csv(os.path.join('data','processed','events.csv'),index_col=0)
+events = pd.read_csv(os.path.join('data','processed','events.csv'),index_col='id')
 
 # truncate prices and events to 80% quartile of events index
-events = events.loc[events.index[0]:events.index[int(len(events.index)*0.8)]]
-prices = prices.loc[events.index[0]:events.index[-1]]
+events = events.loc[prices.index[0]:prices.index[int(len(prices.index)*0.8)]]
+prices = prices.loc[prices.index[0]:prices.index[int(len(prices.index)*0.8)]]
 
 # concurrency
 concurrency = get_concurrency(prices.index, events['first_touch_index'])
+print("Concurrency : ")
 print(concurrency.describe())
 print(concurrency.head())
 print(concurrency.tail())
