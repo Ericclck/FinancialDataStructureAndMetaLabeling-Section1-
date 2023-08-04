@@ -1,79 +1,66 @@
-# Quantitative Finance #
+# Quantitative Finance Library
 
-This repository includes the implementation of Chapters 2 and 3 from the book "Advances in Financial Machine Learning".
+This repository contains a comprehensive implementation of various quantitative finance methodologies including Information-driven Bars, Cumulative Sum Filter, Triple Barriers Method, Meta-labeling, Sample Weighting and Sequential Weighted Bagging.
 
-## Financial Data Structures ##
-The implementation includes regular bars, imbalance bars, run bars, and the cumulative sum filter. The analysis includes tests of normality, stationarity, and serial correlation.
+## Financial Data Structures
 
-Normality tests are based on the Kolmogorov-Smirnov (KS) and Jarque-Bera tests, as the Shapiro-Wilk test is not accurate for large samples.
-Stationarity tests are based on the Augmented Dickey-Fuller (ADF) test.
-Autocorrelation Function (ACF) Plots
-The following ACF plots represent the log returns.
+The library features a range of data structures customary to financial analysis. These include regular bars, imbalance bars, run bars, and the Cumulative Sum Filter. The analysis procedures comprise tests of normality, stationarity, and serial correlation.
 
-ACF Plot for Log Returns (Tick Frequency):
-![Alt text for image](/plots/acf.png)
+- Normality tests utilize Kolmogorov-Smirnov (KS) and Jarque-Bera tests, as Shapiro-Wilk test is deemed less accurate for extensive datasets.
+- Stationarity tests employ the Augmented Dickey-Fuller (ADF) test.
+- Autocorrelation Function (ACF) Plots are used to represent the log returns.
 
-ACF Plot for Log Returns (Daily Frequency):
-![Alt text for image](/plots/events/acf.png)
+**ACF Plot for Log Returns (Tick Frequency):**
+![ACF Plot for Log Returns (Tick Frequency)](/plots/acf.png)
 
-Cumulative Sum Filter created statistically significant correlations between Binance cash net flow data, balances count, and Bitcoin log return.
+**ACF Plot for Log Returns (Daily Frequency):**
+![ACF Plot for Log Returns (Daily Frequency)](/plots/events/acf.png)
 
-### Normality Improvement ###
-![Alt text for image](/plots/events/log_price_normal.png)
-![Alt text for image](/plots/events/price_cusum_normal.png)
-After applying the Cumulative Sum Filter, the normality of the sample improved. The following plots demonstrate the improvement:
+Significant correlations were observed between Binance cash net flow data, balances count, and Bitcoin log return after the application of Cumulative Sum Filter.
 
-## Labeling and Meta-Labeling ##
-The implementation includes labeling whether a sample reaches profit-taking, stop-loss levels, or expiry using the Triple Barrier method. It uses the primary model to pick a side for each sample and meta-labeling to determine the bet size.
+### Normality Improvement
+After applying the Cumulative Sum Filter, an improvement in sample normality was observed. The following plots illustrate this enhancement:
 
-![Alt text for image](plots/labeling/scores.png)<br>
+![Normality Improvement](/plots/events/log_price_normal.png)
+![Normality Improvement](/plots/events/price_cusum_normal.png)
 
-Precision , Recall and F1 scores for the primary model and the secondary model
-F1 scores increases for secondary model, as expected.
+## Labeling and Meta-Labeling
 
-![Alt text for image](plots/labeling/return_series.png)<br>
+The implementation includes a procedure for labeling whether a sample reaches profit-taking, stop-loss levels, or expiry using the Triple Barrier method. The primary model is used to select a side for each sample, and meta-labeling is employed to determine the bet size.
 
-The example above shows a return series based on prediction on test data, containing overlapping samples due to the Triple Barriers method.
+![Model Scores](plots/labeling/scores.png)
 
-It is found later that the concurrency of the above sampling is very low, with median concurrency(overlapping) of 0
+The image above depicts the Precision, Recall, and F1 scores for both primary and secondary models. As anticipated, the F1 scores increase for the secondary model.
 
-After concurrency is fixed and boundary of testing data is re-adjusted to match with sample weights boundaries
-The return series now looks like this:
+![Return Series](plots/labeling/return_series.png)
 
-![Alt text for image](plots/labeling/return_series_concurrency_fixed_boundary_adjusted.png)<br>
+The return series based on prediction on test data may contain overlapping samples due to the Triple Barriers method. However, the concurrency of the sampling is found to be low, and after adjusting the concurrency and test data boundaries to match sample weight boundaries, the return series now looks like this:
 
-Caution : Any return series above is not the actual return series, every sample might overlap with each other. <br>
+![Adjusted Return Series](plots/labeling/return_series_concurrency_fixed_boundary_adjusted.png)
 
-![Alt text for image](plots/labeling/return.png)<br>
-After increasing max_depth of the secondary model to 10, the return series looks like this. <br>
+Please note that any return series displayed above is not the actual return series as each sample might overlap with each other.
 
-Unfortunately, if commissions of 0.1% are taken into account, this strategy is not profitable. <br>
+After increasing the max_depth of the secondary model to 10, the return series looks like this:
 
-### Sample Weighting and Bagging ###
+![Enhanced Return Series](plots/labeling/return.png)
 
-The sample weights are calculated as follows: <br>
-sum of returns, <br>
-divided by concurrency in terms of tick over the period from the start of sample to profit-taking/stop-loss/expiry. <br>
-multiply by the cumulative uniqueness decay factor<br>
+Please note, this strategy would not be profitable if a commission of 0.1% is considered.
 
+### Sample Weighting and Bagging
 
-Weighted bootstrapping is then performed with this sample weights. <br>
-Originally, sequential bootstrapping is used,<br>
-but it soon becomes apparent that my laptop cannot handle the memory consumption. <br>
-Bagging is performed with 6 models,<br>
-each with 1000 trees and a maximum depth of 10. (same as previous model), <br>
-since average weighting is around .17.<br>
+Sample weights are computed using the following formula:
+- Sum of returns,
+- Divided by concurrency in terms of tick over the period from the start of sample to profit-taking/stop-loss/expiry,
+- Multiplied by the cumulative uniqueness decay factor.
 
+Weighted bootstrapping is then performed with these sample weights. Initially, sequential bootstrapping was used, but due to high memory consumption, the process was switched to bagging. Bagging is conducted with six models, each with 1,000 trees and a maximum depth of 10, as the average weighting is around 0.17.
 
-![Alt text for image](plots/labeling/return_bagging.png)<br>
+![Return Series with Bagging](plots/labeling/return_bagging.png)
 
-With bagging, the return series looks like this. <br>
-The mean of return increases slightly, in order of magnitude of 10^-8. <br>
-Which is not enough to cover the commissions. <br>
+With bagging, the return series shows a slight increase in the mean return, although not sufficient to cover commissions.
 
-### Summary ###
-The **primary model** is a simple cross moving average model with a *100-ticks vs 1000-ticks* window, <br>
-while the **secondary model** is a Random Forest model with *1000 trees and a maximum depth of 10*. <br>
+### Summary
 
-Although commissions are not taken into account , considering the simplicity of both models, <br>
-it is quite surprising that they can generate any **profit** at all.
+The primary model is a simple cross moving average model with a 100-ticks vs 1000-ticks window, while the secondary model is a Random Forest model with 1,000 trees and a maximum depth of 10.
+
+While no considerations were made for commissions, given the simplicity of both models, it is notable that they can generate any profit at all.
