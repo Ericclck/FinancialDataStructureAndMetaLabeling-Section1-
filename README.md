@@ -36,12 +36,12 @@ Initially, I performed weighted bootstrapping with these sample weights. However
 
 ## Data Consolidation and Model Calibration
 
-To reduce the number of trades (and consequently, commissions), I consolidated 5 days of tick data into one sample. This approach, however, created challenges with the Triple Barriers method, particularly with the horizontal and vertical barriers. After addressing these issues, the mean return improved but remained insufficient to cover commissions.
+To reduce the number of trades (and consequently, commissions), I consolidated 5 days of tick data into one sample. This approach, however, created challenges with the Triple Barriers method, particularly with the horizontal and vertical barriers. After addressing these issues, the mean return improved(3e-6) but remained insufficient to cover commissions.
 
 ![Return Series](plots/labeling/return_100_run.png)
 ![Return mean](plots/labeling/return_100_run_mean.png)
 
-For a longer interval, my results suggest that the current strategy may be too risky or that the model may not be adequately trained due to lack of data.
+For a longer interval, though the mean return improved to 3e-4, my results suggest that the current strategy may be too risky or that the model may not be adequately trained due to lack of data.
 
 ![Return Series](plots/labeling/return_1000_run.png)
 ![Return mean](plots/labeling/return_1000_run_mean.png)
