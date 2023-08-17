@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def construct_indicator_matrix(price_indices : pd.Series, events:pd.DataFrame) -> pd.DataFrame:
+def construct_indicator_matrix(price_indices : pd.Index, first_touch_index:pd.Series) -> pd.DataFrame:
     """
     Construct indicator matrix that signifies whether a price bar is within the observation period of each sample
 
@@ -9,8 +9,8 @@ def construct_indicator_matrix(price_indices : pd.Series, events:pd.DataFrame) -
     ----------
     price_indices : pd.Series
         Series of indices of prices
-    events : pd.DataFrame
-        DataFrame of events
+    first_touch_index : pd.DataFrame
+        DataFrame of first_touch_index
         index represents the start of the observation period
         first_touch_index column represents the timestamp of when the vertical barrier is reached
 
@@ -22,8 +22,8 @@ def construct_indicator_matrix(price_indices : pd.Series, events:pd.DataFrame) -
         columns represent the samples
     """
 
-    indicator_matrix = pd.DataFrame(0, index=price_indices, columns=range(events.shape[0]))
-    for i, (start, end) in enumerate(zip(events.index, events['first_touch_index'])):
+    indicator_matrix = pd.DataFrame(0, index=price_indices, columns=range(first_touch_index.shape[0]))
+    for i, (start, end) in enumerate(zip(first_touch_index.index, first_touch_index)):
         indicator_matrix.loc[start:end, i] = 1
     return indicator_matrix
 
@@ -49,6 +49,7 @@ def get_average_uniqueness(indicator_matrix : pd.DataFrame) -> pd.Series:
     # Get uniqueness 
     uniqueness = indicator_matrix.div(concurrency_per_price_bar,axis=0)
     # Get average uniqueness per sample
+    uniqueness = uniqueness[uniqueness>0]
     average_uniqueness = uniqueness.mean(axis=0)
     return average_uniqueness
 
